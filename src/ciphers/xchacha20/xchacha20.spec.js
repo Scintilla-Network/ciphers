@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { xchacha20 } from './xchacha20.js';
-import { randomBytes } from '../utils/index.js';
+import { randomBytes } from '../../utils/index.js';
 
 describe('XChaCha20-Poly1305', () => {
   const key = new Uint8Array(32).fill(1); // Deterministic key for testing
@@ -8,27 +8,27 @@ describe('XChaCha20-Poly1305', () => {
 
   describe('Basic encrypt/decrypt', () => {
     it('should encrypt and decrypt successfully with auto-generated nonce', () => {
-      const encrypted = xchacha20.encrypt(key, message);
-      const decrypted = xchacha20.decrypt(key, encrypted);
+      const encrypted = xchacha20.encrypt(message, key);
+      const decrypted = xchacha20.decrypt(encrypted, key);
       
       expect(new TextDecoder().decode(decrypted)).toBe('Hello, XChaCha20-Poly1305!');
     });
 
     it('should encrypt and decrypt with custom nonce', () => {
       const customNonce = new Uint8Array(24).fill(42); // 24-byte nonce for XChaCha20
-      const encrypted = xchacha20.encrypt(key, message, customNonce);
-      const decrypted = xchacha20.decrypt(key, encrypted);
+      const encrypted = xchacha20.encrypt(message, key, customNonce);
+      const decrypted = xchacha20.decrypt(encrypted, key);
       
       expect(new TextDecoder().decode(decrypted)).toBe('Hello, XChaCha20-Poly1305!');
     });
 
     it('should decrypt with explicit nonce parameter', () => {
       const customNonce = new Uint8Array(24).fill(99);
-      const encrypted = xchacha20.encrypt(key, message, customNonce);
+      const encrypted = xchacha20.encrypt(message, key, customNonce);
       
       // Extract ciphertext without nonce
       const ciphertext = encrypted.slice(24);
-      const decrypted = xchacha20.decrypt(key, ciphertext, customNonce);
+      const decrypted = xchacha20.decrypt(ciphertext, key, customNonce);
       
       expect(new TextDecoder().decode(decrypted)).toBe('Hello, XChaCha20-Poly1305!');
     });
@@ -37,7 +37,7 @@ describe('XChaCha20-Poly1305', () => {
   describe('Nonce handling', () => {
     it('should prepend nonce to encrypted data', () => {
       const customNonce = new Uint8Array(24).fill(123);
-      const encrypted = xchacha20.encrypt(key, message, customNonce);
+      const encrypted = xchacha20.encrypt(message, key, customNonce);
       
       // First 24 bytes should be the nonce
       const extractedNonce = encrypted.slice(0, 24);
@@ -45,8 +45,8 @@ describe('XChaCha20-Poly1305', () => {
     });
 
     it('should generate different nonces for each encryption', () => {
-      const encrypted1 = xchacha20.encrypt(key, message);
-      const encrypted2 = xchacha20.encrypt(key, message);
+      const encrypted1 = xchacha20.encrypt(message, key);
+      const encrypted2 = xchacha20.encrypt(message, key);
       
       const nonce1 = encrypted1.slice(0, 24);
       const nonce2 = encrypted2.slice(0, 24);
@@ -55,7 +55,7 @@ describe('XChaCha20-Poly1305', () => {
     });
 
     it('should use 24-byte nonces', () => {
-      const encrypted = xchacha20.encrypt(key, message);
+      const encrypted = xchacha20.encrypt(message, key);
       
       // XChaCha20 uses 24-byte nonces
       expect(encrypted.length).toBeGreaterThanOrEqual(24 + message.length + 16); // nonce + message + tag
@@ -65,16 +65,16 @@ describe('XChaCha20-Poly1305', () => {
   describe('Data integrity', () => {
     it('should handle empty messages', () => {
       const emptyMessage = new Uint8Array(0);
-      const encrypted = xchacha20.encrypt(key, emptyMessage);
-      const decrypted = xchacha20.decrypt(key, encrypted);
+      const encrypted = xchacha20.encrypt(emptyMessage, key);
+      const decrypted = xchacha20.decrypt(encrypted, key);
       
       expect(decrypted).toEqual(emptyMessage);
     });
 
     it('should handle large messages', () => {
       const largeMessage = new Uint8Array(10000).fill(255);
-      const encrypted = xchacha20.encrypt(key, largeMessage);
-      const decrypted = xchacha20.decrypt(key, encrypted);
+      const encrypted = xchacha20.encrypt(largeMessage, key);
+      const decrypted = xchacha20.decrypt(encrypted, key);
       
       expect(decrypted).toEqual(largeMessage);
     });
@@ -83,8 +83,8 @@ describe('XChaCha20-Poly1305', () => {
       const nonce1 = new Uint8Array(24).fill(1);
       const nonce2 = new Uint8Array(24).fill(2);
       
-      const encrypted1 = xchacha20.encrypt(key, message, nonce1);
-      const encrypted2 = xchacha20.encrypt(key, message, nonce2);
+      const encrypted1 = xchacha20.encrypt(message, key, nonce1);
+      const encrypted2 = xchacha20.encrypt(message, key, nonce2);
       
       expect(encrypted1).not.toEqual(encrypted2);
     });
@@ -93,28 +93,28 @@ describe('XChaCha20-Poly1305', () => {
   describe('Error handling', () => {
     it('should fail with wrong key', () => {
       const wrongKey = new Uint8Array(32).fill(2);
-      const encrypted = xchacha20.encrypt(key, message);
+      const encrypted = xchacha20.encrypt(message, key);
       
       expect(() => {
-        xchacha20.decrypt(wrongKey, encrypted);
+        xchacha20.decrypt(encrypted, wrongKey);
       }).toThrow();
     });
 
     it('should fail with corrupted ciphertext', () => {
-      const encrypted = xchacha20.encrypt(key, message);
+      const encrypted = xchacha20.encrypt(message, key);
       encrypted[encrypted.length - 1] ^= 1; // Flip a bit in the tag
       
       expect(() => {
-        xchacha20.decrypt(key, encrypted);
+        xchacha20.decrypt(encrypted, key);
       }).toThrow();
     });
 
     it('should fail with truncated ciphertext', () => {
-      const encrypted = xchacha20.encrypt(key, message);
+      const encrypted = xchacha20.encrypt(message, key);
       const truncated = encrypted.slice(0, -1); // Remove last byte
       
       expect(() => {
-        xchacha20.decrypt(key, truncated);
+        xchacha20.decrypt(truncated, key);
       }).toThrow();
     });
   });
@@ -123,8 +123,8 @@ describe('XChaCha20-Poly1305', () => {
     it('should be deterministic with same key and nonce', () => {
       const fixedNonce = new Uint8Array(24).fill(42);
       
-      const encrypted1 = xchacha20.encrypt(key, message, fixedNonce);
-      const encrypted2 = xchacha20.encrypt(key, message, fixedNonce);
+      const encrypted1 = xchacha20.encrypt(message, key, fixedNonce);
+      const encrypted2 = xchacha20.encrypt(message, key, fixedNonce);
       
       expect(encrypted1).toEqual(encrypted2);
     });
@@ -133,8 +133,8 @@ describe('XChaCha20-Poly1305', () => {
       const randomKey = randomBytes(32);
       const randomMessage = randomBytes(1000);
       
-      const encrypted = xchacha20.encrypt(randomKey, randomMessage);
-      const decrypted = xchacha20.decrypt(randomKey, encrypted);
+      const encrypted = xchacha20.encrypt(randomMessage, randomKey);
+      const decrypted = xchacha20.decrypt(encrypted, randomKey);
       
       expect(decrypted).toEqual(randomMessage);
     });
@@ -146,8 +146,8 @@ describe('XChaCha20-Poly1305', () => {
       const results = [];
       
       for (let i = 0; i < iterations; i++) {
-        const encrypted = xchacha20.encrypt(key, message);
-        const decrypted = xchacha20.decrypt(key, encrypted);
+        const encrypted = xchacha20.encrypt(message, key);
+        const decrypted = xchacha20.decrypt(encrypted, key);
         results.push(new TextDecoder().decode(decrypted));
       }
       

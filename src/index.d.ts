@@ -4,21 +4,21 @@
 export interface CipherFunction {
   /**
    * Encrypt data with automatic nonce handling
-   * @param key - Encryption key (16, 24, or 32 bytes for AES; 32 bytes for ChaCha20)
    * @param data - Data to encrypt
+   * @param key - Encryption key (16, 24, or 32 bytes for AES; 32 bytes for ChaCha20)
    * @param nonce - Optional nonce (if not provided, random nonce will be generated)
    * @returns Encrypted data with nonce prepended
    */
-  encrypt(key: Uint8Array, data: Uint8Array, nonce?: Uint8Array): Uint8Array;
+  encrypt(data: Uint8Array, key: Uint8Array, nonce?: Uint8Array): Uint8Array;
 
   /**
    * Decrypt data with automatic nonce extraction
-   * @param key - Decryption key
    * @param encryptedData - Encrypted data with nonce prepended (from encrypt function)
+   * @param key - Decryption key
    * @param nonce - Optional explicit nonce (if provided, encryptedData is treated as pure ciphertext)
    * @returns Decrypted plaintext data
    */
-  decrypt(key: Uint8Array, encryptedData: Uint8Array, nonce?: Uint8Array): Uint8Array;
+  decrypt(encryptedData: Uint8Array, key: Uint8Array, nonce?: Uint8Array): Uint8Array;
 }
 
 /**

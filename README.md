@@ -34,10 +34,10 @@ const key = utils.randomBytes(32);
 const message = new TextEncoder().encode("Hello World!");
 
 // Encrypt (output is prepended with the nonce)
-const encrypted = xchacha20.encrypt(key, message);
+const encrypted = xchacha20.encrypt(message, key);
 
 // Decrypt
-const decrypted = xchacha20.decrypt(key, encrypted);
+const decrypted = xchacha20.decrypt(encrypted, key);
 console.log(new TextDecoder().decode(decrypted)); // "Hello World!"
 ```
 
@@ -50,16 +50,16 @@ const key = utils.randomBytes(32);
 const message = new TextEncoder().encode("Secret message");
 
 // XChaCha20-Poly1305 (recommended - safe with random nonces)
-const encrypted1 = xchacha20.encrypt(key, message);
-const decrypted1 = xchacha20.decrypt(key, encrypted1);
+const encrypted1 = xchacha20.encrypt(message, key);
+const decrypted1 = xchacha20.decrypt(encrypted1, key);
 
 // AES-GCM (industry standard)
-const encrypted2 = aesgcm.encrypt(key, message);
-const decrypted2 = aesgcm.decrypt(key, encrypted2);
+const encrypted2 = aesgcm.encrypt(message, key);
+const decrypted2 = aesgcm.decrypt(encrypted2, key);
 
 // ChaCha20-Poly1305 (TLS 1.3 standard)
-const encrypted3 = chacha20.encrypt(key, message);
-const decrypted3 = chacha20.decrypt(key, encrypted3);
+const encrypted3 = chacha20.encrypt(message, key);
+const decrypted3 = chacha20.decrypt(encrypted3, key);
 ```
 
 ### Custom Nonces (Advanced)
@@ -72,8 +72,8 @@ const message = new TextEncoder().encode("Hello World!");
 
 // Provide your own nonce if needed
 const customNonce = utils.randomBytes(24); // XChaCha20 uses 24-byte nonces
-const encrypted = xchacha20.encrypt(key, message, customNonce).slice(24); // We slice the nonce off from the encrypted data
-const decrypted = xchacha20.decrypt(key, encrypted, customNonce);
+const encrypted = xchacha20.encrypt(message, key, customNonce).slice(24); // We slice the nonce off from the encrypted data
+const decrypted = xchacha20.decrypt(encrypted, key, customNonce);
 ```
 
 ## Why XChaCha20-Poly1305?

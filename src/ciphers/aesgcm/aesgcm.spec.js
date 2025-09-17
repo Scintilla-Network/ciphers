@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { aesgcm } from './aesgcm.js';
-import { randomBytes } from '../utils/index.js';
+import { randomBytes } from '../../utils/index.js';
 
 describe('AES-GCM', () => {
   const key = new Uint8Array(32).fill(1); // Deterministic key for testing
@@ -8,27 +8,27 @@ describe('AES-GCM', () => {
 
   describe('Basic encrypt/decrypt', () => {
     it('should encrypt and decrypt successfully with auto-generated nonce', () => {
-      const encrypted = aesgcm.encrypt(key, message);
-      const decrypted = aesgcm.decrypt(key, encrypted);
+      const encrypted = aesgcm.encrypt(message, key);
+      const decrypted = aesgcm.decrypt(encrypted, key);
       
       expect(new TextDecoder().decode(decrypted)).toBe('Hello, AES-GCM!');
     });
 
     it('should encrypt and decrypt with custom nonce', () => {
       const customNonce = new Uint8Array(12).fill(42); // 12-byte nonce for AES-GCM
-      const encrypted = aesgcm.encrypt(key, message, customNonce);
-      const decrypted = aesgcm.decrypt(key, encrypted);
+      const encrypted = aesgcm.encrypt(message, key, customNonce);
+      const decrypted = aesgcm.decrypt(encrypted, key);
       
       expect(new TextDecoder().decode(decrypted)).toBe('Hello, AES-GCM!');
     });
 
     it('should decrypt with explicit nonce parameter', () => {
       const customNonce = new Uint8Array(12).fill(99);
-      const encrypted = aesgcm.encrypt(key, message, customNonce);
+      const encrypted = aesgcm.encrypt(message, key, customNonce);
       
       // Extract ciphertext without nonce
       const ciphertext = encrypted.slice(12);
-      const decrypted = aesgcm.decrypt(key, ciphertext, customNonce);
+      const decrypted = aesgcm.decrypt(ciphertext, key, customNonce);
       
       expect(new TextDecoder().decode(decrypted)).toBe('Hello, AES-GCM!');
     });
@@ -37,7 +37,7 @@ describe('AES-GCM', () => {
   describe('Nonce handling', () => {
     it('should prepend nonce to encrypted data', () => {
       const customNonce = new Uint8Array(12).fill(123);
-      const encrypted = aesgcm.encrypt(key, message, customNonce);
+      const encrypted = aesgcm.encrypt(message, key, customNonce);
       
       // First 12 bytes should be the nonce
       const extractedNonce = encrypted.slice(0, 12);
@@ -45,8 +45,8 @@ describe('AES-GCM', () => {
     });
 
     it('should generate different nonces for each encryption', () => {
-      const encrypted1 = aesgcm.encrypt(key, message);
-      const encrypted2 = aesgcm.encrypt(key, message);
+      const encrypted1 = aesgcm.encrypt(message, key);
+      const encrypted2 = aesgcm.encrypt(message, key);
       
       const nonce1 = encrypted1.slice(0, 12);
       const nonce2 = encrypted2.slice(0, 12);
@@ -55,7 +55,7 @@ describe('AES-GCM', () => {
     });
 
     it('should use 12-byte nonces (industry standard)', () => {
-      const encrypted = aesgcm.encrypt(key, message);
+      const encrypted = aesgcm.encrypt(message, key);
       
       // AES-GCM uses 12-byte nonces
       expect(encrypted.length).toBeGreaterThanOrEqual(12 + message.length + 16); // nonce + message + tag
@@ -65,24 +65,24 @@ describe('AES-GCM', () => {
   describe('Key size support', () => {
     it('should work with 128-bit keys', () => {
       const key128 = new Uint8Array(16).fill(1);
-      const encrypted = aesgcm.encrypt(key128, message);
-      const decrypted = aesgcm.decrypt(key128, encrypted);
+      const encrypted = aesgcm.encrypt(message, key128);
+      const decrypted = aesgcm.decrypt(encrypted, key128);
       
       expect(new TextDecoder().decode(decrypted)).toBe('Hello, AES-GCM!');
     });
 
     it('should work with 192-bit keys', () => {
       const key192 = new Uint8Array(24).fill(1);
-      const encrypted = aesgcm.encrypt(key192, message);
-      const decrypted = aesgcm.decrypt(key192, encrypted);
+      const encrypted = aesgcm.encrypt(message, key192);
+      const decrypted = aesgcm.decrypt(encrypted, key192);
       
       expect(new TextDecoder().decode(decrypted)).toBe('Hello, AES-GCM!');
     });
 
     it('should work with 256-bit keys', () => {
       const key256 = new Uint8Array(32).fill(1);
-      const encrypted = aesgcm.encrypt(key256, message);
-      const decrypted = aesgcm.decrypt(key256, encrypted);
+      const encrypted = aesgcm.encrypt(message, key256);
+      const decrypted = aesgcm.decrypt(encrypted, key256);
       
       expect(new TextDecoder().decode(decrypted)).toBe('Hello, AES-GCM!');
     });
@@ -91,16 +91,16 @@ describe('AES-GCM', () => {
   describe('Data integrity', () => {
     it('should handle empty messages', () => {
       const emptyMessage = new Uint8Array(0);
-      const encrypted = aesgcm.encrypt(key, emptyMessage);
-      const decrypted = aesgcm.decrypt(key, encrypted);
+      const encrypted = aesgcm.encrypt(emptyMessage, key);
+      const decrypted = aesgcm.decrypt(encrypted, key);
       
       expect(decrypted).toEqual(emptyMessage);
     });
 
     it('should handle large messages', () => {
       const largeMessage = new Uint8Array(10000).fill(255);
-      const encrypted = aesgcm.encrypt(key, largeMessage);
-      const decrypted = aesgcm.decrypt(key, encrypted);
+      const encrypted = aesgcm.encrypt(largeMessage, key);
+      const decrypted = aesgcm.decrypt(encrypted, key);
       
       expect(decrypted).toEqual(largeMessage);
     });
@@ -109,8 +109,8 @@ describe('AES-GCM', () => {
       const nonce1 = new Uint8Array(12).fill(1);
       const nonce2 = new Uint8Array(12).fill(2);
       
-      const encrypted1 = aesgcm.encrypt(key, message, nonce1);
-      const encrypted2 = aesgcm.encrypt(key, message, nonce2);
+      const encrypted1 = aesgcm.encrypt(message, key, nonce1);
+      const encrypted2 = aesgcm.encrypt(message, key, nonce2);
       
       expect(encrypted1).not.toEqual(encrypted2);
     });
@@ -119,28 +119,28 @@ describe('AES-GCM', () => {
   describe('Error handling', () => {
     it('should fail with wrong key', () => {
       const wrongKey = new Uint8Array(32).fill(2);
-      const encrypted = aesgcm.encrypt(key, message);
+      const encrypted = aesgcm.encrypt(message, key);
       
       expect(() => {
-        aesgcm.decrypt(wrongKey, encrypted);
+        aesgcm.decrypt(encrypted, wrongKey);
       }).toThrow();
     });
 
     it('should fail with corrupted ciphertext', () => {
-      const encrypted = aesgcm.encrypt(key, message);
+      const encrypted = aesgcm.encrypt(message, key);
       encrypted[encrypted.length - 1] ^= 1; // Flip a bit in the tag
       
       expect(() => {
-        aesgcm.decrypt(key, encrypted);
+        aesgcm.decrypt(encrypted, key);
       }).toThrow();
     });
 
     it('should fail with truncated ciphertext', () => {
-      const encrypted = aesgcm.encrypt(key, message);
+      const encrypted = aesgcm.encrypt(message, key);
       const truncated = encrypted.slice(0, -1); // Remove last byte
       
       expect(() => {
-        aesgcm.decrypt(key, truncated);
+        aesgcm.decrypt(truncated, key);
       }).toThrow();
     });
   });
@@ -149,8 +149,8 @@ describe('AES-GCM', () => {
     it('should be deterministic with same key and nonce', () => {
       const fixedNonce = new Uint8Array(12).fill(42);
       
-      const encrypted1 = aesgcm.encrypt(key, message, fixedNonce);
-      const encrypted2 = aesgcm.encrypt(key, message, fixedNonce);
+      const encrypted1 = aesgcm.encrypt(message, key, fixedNonce);
+      const encrypted2 = aesgcm.encrypt(message, key, fixedNonce);
       
       expect(encrypted1).toEqual(encrypted2);
     });
@@ -159,14 +159,14 @@ describe('AES-GCM', () => {
       const randomKey = randomBytes(32);
       const randomMessage = randomBytes(1000);
       
-      const encrypted = aesgcm.encrypt(randomKey, randomMessage);
-      const decrypted = aesgcm.decrypt(randomKey, encrypted);
+      const encrypted = aesgcm.encrypt(randomMessage, randomKey);
+      const decrypted = aesgcm.decrypt(encrypted, randomKey);
       
       expect(decrypted).toEqual(randomMessage);
     });
 
     it('should have same overhead as ChaCha20-Poly1305', () => {
-      const encrypted = aesgcm.encrypt(key, message);
+      const encrypted = aesgcm.encrypt(message, key);
       
       // Should have 28 bytes overhead (12-byte nonce + 16-byte tag)
       expect(encrypted.length).toBe(message.length + 28);
@@ -179,8 +179,8 @@ describe('AES-GCM', () => {
       const results = [];
       
       for (let i = 0; i < iterations; i++) {
-        const encrypted = aesgcm.encrypt(key, message);
-        const decrypted = aesgcm.decrypt(key, encrypted);
+        const encrypted = aesgcm.encrypt(message, key);
+        const decrypted = aesgcm.decrypt(encrypted, key);
         results.push(new TextDecoder().decode(decrypted));
       }
       
