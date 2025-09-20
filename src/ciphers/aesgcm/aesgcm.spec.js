@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@scintilla-network/litest';
 import { aesgcm } from './aesgcm.js';
 import { randomBytes } from '../../utils/index.js';
 

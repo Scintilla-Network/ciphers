@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@scintilla-network/litest';
 import { xchacha20 } from './xchacha20.js';
 import { randomBytes } from '../../utils/index.js';
 

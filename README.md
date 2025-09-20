@@ -7,13 +7,14 @@ Simple, secure encryption for JavaScript. Easy nonce management - just encrypt a
 
 ## Features
 
-* 🧪 **XChaCha20-Poly1305** — Recommended for most use cases (safe with random nonces)
-* 🔒 **AES-GCM** — Industry standard, widely supported
-* ⚡ **ChaCha20-Poly1305** — Used in TLS 1.3.
-* 🎯 **Simplified nonce management** — Library handles nonces automatically (still allows for custom nonces)
-* 🔬 **Audited implementations** — Built on battle-tested noble-ciphers
-* 📦 **Zero dependencies** beyond noble
-* 🛡️ **256-bit security** — Post-quantum resistant (Grover's algorithm only gives a quadratic speedup)
+* **XChaCha20-Poly1305** — Recommended for most use cases (safe with random nonces)
+* **AES-GCM** — Industry standard, widely supported
+* **ChaCha20-Poly1305** — Used in TLS 1.3.
+
+* **Simplified nonce management** — Library handles nonces automatically (still allows for custom nonces)
+* **Audited implementations** — Built on battle-tested noble-ciphers
+* **Zero dependencies** beyond noble
+* **256-bit security** — Post-quantum resistant (Grover's algorithm only gives a quadratic speedup)
 
 ## Installation
 
@@ -23,7 +24,7 @@ npm install @scintilla-network/ciphers
 
 ## Usage
 
-### Quick Start (Recommended algorithm)
+### Quick Start (Recommended algorithm: xchacha20 - most secure)
 
 ```javascript
 import { xchacha20, utils } from '@scintilla-network/ciphers';
@@ -80,12 +81,13 @@ const decrypted = xchacha20.decrypt(encrypted, key, customNonce);
 
 **XChaCha20-Poly1305 is recommended for most applications** because:
 
-* ✅ **Safe with random nonces** - No need to track nonce uniqueness
-* ✅ **Large nonce space** - 24 bytes means virtually no collision risk
-* ✅ **Fast performance** - Often faster than AES in JavaScript
-* ✅ **Modern design** - Built for today's security needs
+* **Safe with random nonces** - No need to track nonce uniqueness
+* **Large nonce space** - 24 bytes means virtually no collision risk
+* **Fast performance** - Often faster than AES in JavaScript
+* **Modern design** - Built for today's security needs
 
 **When to use others:**
+
 * **AES-GCM**: When you need maximum compatibility or hardware acceleration
 * **ChaCha20-Poly1305**: When building TLS 1.3 compatible systems (is standardized in TLS 1.3)
 
@@ -93,6 +95,7 @@ const decrypted = xchacha20.decrypt(encrypted, key, customNonce);
 
 * [@scintilla-network/hashes](https://github.com/Scintilla-Network/hashes): Hashes, KDFs, utilities
 * [@scintilla-network/signatures](https://github.com/Scintilla-Network/signatures): Signatures and key exchange
+* [@scintilla-network/mnemonic](https://github.com/Scintilla-Network/mnemonic): Mnemonics phrase generation and derivation
 
 ## License
 

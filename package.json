@@ -1,43 +1,42 @@
 {
     "name": "@scintilla-network/ciphers",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Ciphers for Scintilla and broader use",
     "type": "module",
     "main": "src/index.js",
     "types": "src/index.d.ts",
     "exports": {
-      ".": {
-        "types": "./src/index.d.ts",
-        "default": "./src/index.js"
-      }
+        ".": {
+            "types": "./src/index.d.ts",
+            "default": "./src/index.js"
+        }
     },
     "files": [
-      "src",
-      "README.md",
-      "LICENSE"
+        "src",
+        "README.md",
+        "LICENSE"
     ],
     "scripts": {
-      "test": "vitest run",
-      "typecheck": "tsc",
-      "prepublishOnly": "npm run test"
+        "test": "litest",
+        "typecheck": "tsc",
+        "prepublishOnly": "npm run test"
     },
     "keywords": [
-      "crypto",
-      "ciphers",
-      "post-quantum",
-      "scintilla",
-      "chacha20",
-      "xchacha20",
-      "poly1305",
-      "aes-gcm"
+        "crypto",
+        "ciphers",
+        "post-quantum",
+        "scintilla",
+        "chacha20",
+        "xchacha20",
+        "poly1305",
+        "aes-gcm"
     ],
     "author": "Scintilla Labs",
     "license": "MIT",
     "dependencies": {
-      "@noble/ciphers": "2.0.0"
+        "@noble/ciphers": "2.0.0"
     },
     "devDependencies": {
-      "vitest": "3.2.4"
+        "@scintilla-network/litest": "1.1.0"
     }
-  }
-  
+}
