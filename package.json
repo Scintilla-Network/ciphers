@@ -1,6 +1,6 @@
 {
     "name": "@scintilla-network/ciphers",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Ciphers for Scintilla and broader use",
     "type": "module",
     "main": "src/index.js",
@@ -20,6 +20,14 @@
         "test": "litest",
         "typecheck": "tsc",
         "prepublishOnly": "npm run test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Scintilla-Network/ciphers.git"
+    },
+    "homepage": "https://github.com/Scintilla-Network/ciphers",
+    "bugs": {
+        "url": "https://github.com/Scintilla-Network/ciphers/issues"
     },
     "keywords": [
         "crypto",
